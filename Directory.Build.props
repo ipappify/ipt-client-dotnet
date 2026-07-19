@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <Version>2.1.0</Version>
+    <Authors>IP.appify GmbH</Authors>
+    <Company>IP.appify GmbH</Company>
+    <Product>IPTranslator</Product>
+    <Copyright>Copyright © IP.appify GmbH</Copyright>
+  </PropertyGroup>
+
+  <!-- deterministic builds on CI (Source Link is built into the .NET SDK) -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <PackageId>IPTranslator.Client</PackageId>
+    <Description>Client for the IPTranslator document translation job API: end-to-end encrypted batch translation of .docx documents (X-Wing post-quantum KEM, AES-256-GCM, hybrid-signed key announcements).</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>translation;patent;document;e2e;encryption;post-quantum;x-wing;ml-kem;docx</PackageTags>
+    <PackageProjectUrl>https://github.com/ipappify/ipt-client-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ipappify/ipt-client-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- reviewability: symbols + Source Link so the package is debuggable against the tagged source -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

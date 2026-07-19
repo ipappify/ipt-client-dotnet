@@ -1,0 +1,31 @@
+# Publishes IPTranslator.Client to nuget.org when a version tag is pushed.
+# Tag with the version from Directory.Build.props: git tag v2.1.0 && git push origin v2.1.0
+# Requires the NUGET_API_KEY repository secret (or switch to nuget.org Trusted
+# Publishing and replace the api-key line with the OIDC login step).
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Test
+        run: dotnet test IPTranslator.Client.slnx -c Release
+      - name: Pack
+        run: dotnet pack src/IPTranslator.Client/IPTranslator.Client.csproj -c Release -o artifacts
+      - name: Push to nuget.org
+        run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate

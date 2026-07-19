@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/IPTranslator.Client/IPTranslator.Client.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/IPTranslator.Client.Cmd/IPTranslator.Client.Cmd.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/IPTranslator.Client.Tests/IPTranslator.Client.Tests.csproj" />
+  </Folder>
+</Solution>
