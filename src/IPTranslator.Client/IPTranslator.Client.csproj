@@ -7,6 +7,7 @@
     <Description>Client for the IPTranslator document translation job API: end-to-end encrypted batch translation of .docx documents (X-Wing post-quantum KEM, AES-256-GCM, hybrid-signed key announcements).</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>translation;patent;document;e2e;encryption;post-quantum;x-wing;ml-kem;docx</PackageTags>
     <PackageProjectUrl>https://github.com/ipappify/ipt-client-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ipappify/ipt-client-dotnet</RepositoryUrl>
@@ -28,5 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
