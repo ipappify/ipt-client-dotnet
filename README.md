@@ -18,6 +18,15 @@ This repository is intentionally small so the code — especially the
 cryptography — is practical to review. See [SECURITY.md](SECURITY.md) for
 reporting vulnerabilities.
 
+## Public beta
+
+This client and the service behind it are in public beta.
+
+- **Service URL**: until general availability, override the service URL with
+  `https://iptranslator-prod-app-chhgdncubmguemhx.westeurope-01.azurewebsites.net`
+  instead of `https://iptranslator.ipappify.de`.
+- **API keys**: request one by email to <support@ipappify.de>.
+
 ## Install
 
 ```
@@ -37,8 +46,9 @@ using IPTranslator.Client.E2E;
 using IPTranslator.Client.Messaging;
 using IPTranslator.Contracts.Actions;
 
+// public beta: this endpoint replaces https://iptranslator.ipappify.de until GA
 var requestHandler = new WebApiRequestHandler(
-    "https://iptranslator.ipappify.de",
+    "https://iptranslator-prod-app-chhgdncubmguemhx.westeurope-01.azurewebsites.net",
     new ApiKeyMessageHandler(apiKey));
 
 // resolve the service public key from the signed announcement (verified
