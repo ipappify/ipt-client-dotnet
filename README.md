@@ -1,6 +1,6 @@
 # IPTranslator.Client
 
-.NET client for the [IPTranslator](https://iptranslator.ipappify.de) document
+.NET client for the [IP.Translator](https://www.ipappify.de/en/ip-translator) document
 translation job API: batch translation of `.docx` documents, **end-to-end
 encrypted** — the document is encrypted on your machine and decrypted only on
 the GPU worker that translates it; the web service relays it unopened.
