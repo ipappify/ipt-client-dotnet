@@ -1,7 +1,9 @@
 # Publishes IPTranslator.Client to nuget.org when a version tag is pushed.
 # Tag with the version from Directory.Build.props: git tag v2.1.0 && git push origin v2.1.0
-# Requires the NUGET_API_KEY repository secret (or switch to nuget.org Trusted
-# Publishing and replace the api-key line with the OIDC login step).
+#
+# Auth is nuget.org Trusted Publishing (OIDC) — no API key is stored. The policy on
+# nuget.org must name repository owner `ipappify`, repository `ipt-client-dotnet`,
+# workflow file `release.yml` and environment `nuget`, matching the job below.
 name: release
 
 on:
@@ -14,6 +16,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the nuget.org key exchange
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -23,9 +29,27 @@ jobs:
         run: dotnet test IPTranslator.Client.slnx -c Release
       - name: Pack
         run: dotnet pack src/IPTranslator.Client/IPTranslator.Client.csproj -c Release -o artifacts
+      # Guards against tagging v2.2.0 while Directory.Build.props still says 2.1.0:
+      # without this the job would pack the stale version and --skip-duplicate would
+      # turn the rejected push into a green build.
+      - name: Verify package version matches tag
+        run: |
+          expected="artifacts/IPTranslator.Client.${GITHUB_REF_NAME#v}.nupkg"
+          if [ ! -f "$expected" ]; then
+            echo "Tag $GITHUB_REF_NAME expects $expected, but pack produced:"
+            ls -1 artifacts
+            echo "Bump <Version> in Directory.Build.props to match the tag."
+            exit 1
+          fi
+      # Temporary keys live 1 hour, so acquire it immediately before the push.
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Push to nuget.org
         run: >
           dotnet nuget push "artifacts/*.nupkg"
-          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
