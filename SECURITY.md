@@ -1,6 +1,6 @@
 # Security Policy
 
-This library implements the client side of IPTranslator's end-to-end
+This library implements the client side of IP.Translator's end-to-end
 encryption (see [docs/encryption.md](docs/encryption.md)). We explicitly
 welcome review of the cryptographic code — that is one of the reasons this
 repository is public.
@@ -21,5 +21,5 @@ and credit reporters in the fix release unless they prefer otherwise.
 - The example CLI (`examples/IPTranslator.Client.Cmd`) is a reference
   implementation; findings there are welcome too.
 
-Server-side issues (the IPTranslator service itself) can also be reported
+Server-side issues (the IP.Translator service itself) can also be reported
 through the same channel.

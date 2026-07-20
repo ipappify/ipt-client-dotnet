@@ -51,8 +51,8 @@ their content.
 ## Finalize
 
 `finalize: true` asks the worker to produce a finished document (unwrap the
-segment controls and drop the IPTranslator binding). With `finalize: false`
-the output keeps the binding, so it can be post-edited with the IPTranslator
+segment controls and drop the IP.Translator binding). With `finalize: false`
+the output keeps the binding, so it can be post-edited with the IP.Translator
 Word add-in.
 
 ## Billing verification

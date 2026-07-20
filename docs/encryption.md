@@ -1,11 +1,11 @@
 # End-to-End Encryption
 
 This document describes the end-to-end (E2E) encryption between this client and
-the IPTranslator GPU translation service, as implemented in this repository.
+the IP.Translator GPU translation service, as implemented in this repository.
 
 ## Threat model and design goal
 
-The IPTranslator web app authenticates API keys, enforces quotas, and registers
+The IP.Translator web app authenticates API keys, enforces quotas, and registers
 consumption — but it must **never be able to read translation content**.
 Payloads are encrypted on the client and decrypted only on the GPU worker
 (which must see plaintext to translate). The web app forwards opaque messages

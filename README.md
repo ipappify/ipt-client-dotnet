@@ -116,7 +116,7 @@ tests/IPTranslator.Client.Tests/   crypto + protocol tests
 docs/                           encryption and document-job protocol docs
 ```
 
-This repository is a curated extract of the IPTranslator codebase: it contains
+This repository is a curated extract of the IP.Translator codebase: it contains
 exactly the client pieces needed for the document job API (plus Ping for key
 announcements). The full product (Word add-in, interactive translation, GenAI
 review) lives in a private repository which is authoritative; changes here are
