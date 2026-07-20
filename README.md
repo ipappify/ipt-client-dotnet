@@ -35,10 +35,12 @@ dotnet add package IPTranslator.Client
 
 ## Quick start
 
-You need an API key and the service's key material: either the pinned X-Wing
-public key (`.xwing`) or, recommended, the built-in announcement verification
-key (rotation-proof — the current service key is then obtained from the
-signed announcement in the Ping response).
+You need an API key. For the service's encryption key, use the built-in
+announcement verification key (`E2EDefaults.ServiceVerificationKey`) and obtain
+the current encryption public key from the signed announcement in the Ping
+response — this is the default and is rotation-proof, since the web service
+cannot forge the announcement. Pinning your own X-Wing encryption public key
+(`.xwing`) directly is optional.
 
 ```csharp
 using IPTranslator.Client;
@@ -80,14 +82,15 @@ Console.WriteLine($"billed units: {result.ConsumedUnits}");
 complete reference implementation:
 
 ```
-ipt-client-cmd input.docx output.docx service.hybrid --src de --trg en \
+ipt-client-cmd input.docx output.docx [service.hybrid] --src de --trg en \
     [-f] [-d terms.xlsx] [-m memory.tmx]... [-k <api-key>]
 ```
 
-The key file is either the pinned X-Wing public key (`*.xwing`) or the
-announcement verification key (`*.hybrid`); the API key can also be supplied
-via the `IPT_API_KEY` environment variable. Run without arguments for full
-usage.
+The key file is optional: when omitted, the built-in production announcement
+verification key is used. Supply one to override it — either the pinned
+X-Wing public key (`*.xwing`) or a different announcement verification key
+(`*.hybrid`). The API key can also be supplied via the `IPT_API_KEY`
+environment variable. Run without arguments for full usage.
 
 ```
 dotnet run --project examples/IPTranslator.Client.Cmd -- ...
