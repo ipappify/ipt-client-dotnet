@@ -1,3 +1,4 @@
+using IPTranslator.Client.E2E;
 using IPTranslator.Client.Messaging;
 using IPTranslator.Contracts;
 using IPTranslator.Contracts.Actions;
@@ -19,11 +20,12 @@ internal static class Program
 
     private static readonly string Usage = $"""
         usage:
-          ipt-client-cmd <input.docx> <output.docx> <key-file> --src <lang> --trg <lang>
+          ipt-client-cmd <input.docx> <output.docx> [<key-file>] --src <lang> --trg <lang>
                          [-f|--finalize] [-d|--dictionary <file>] [-m|--tm <file.tmx>]...
                          [-s|--service-url <url>] [-k|--api-key <key>]
 
-        key-file (raw binary or base64 text, chosen by extension):
+        key-file (optional; raw binary or base64 text, chosen by extension —
+        when omitted, the built-in production verification key is used):
           *.xwing   the service's X-Wing public key ({XWingKem.PublicKeySize} bytes)
           *.hybrid  the Ed25519+ML-DSA-65 verification key ({SignedKeyAnnouncement.VerificationKeySize} bytes);
                     the service key is then obtained from the Ping response's
@@ -152,11 +154,20 @@ internal static class Program
     /// <summary>
     /// Resolves the service's X-Wing public key from the key file: an .xwing
     /// file holds it directly; a .hybrid file holds the verification key for
-    /// the signed announcement delivered in the Ping response.
+    /// the signed announcement delivered in the Ping response. When no key file
+    /// is given, the built-in production verification key
+    /// (<see cref="E2EDefaults.ServiceVerificationKey"/>) drives the signed
+    /// announcement flow.
     /// </summary>
-    private static async Task<string> ResolveServicePublicKey(string keyFile,
+    private static async Task<string> ResolveServicePublicKey(string? keyFile,
         IRequestHandler requestHandler, CancellationToken cancel)
     {
+        if (keyFile is null)
+        {
+            Console.WriteLine("no key file given; using built-in service verification key.");
+            return await ResolveFromSignedAnnouncement(E2EDefaults.ServiceVerificationKey, requestHandler, cancel);
+        }
+
         var bytes = await File.ReadAllBytesAsync(keyFile, cancel);
         switch (Path.GetExtension(keyFile).ToLowerInvariant())
         {
@@ -165,17 +176,27 @@ internal static class Program
 
             case ".hybrid":
                 var verificationKey = DecodeKey(bytes, SignedKeyAnnouncement.VerificationKeySize, keyFile);
-                var ping = await new ManagementClient(requestHandler).Ping(new Ping.Request(), cancel);
-                if (string.IsNullOrEmpty(ping.SignedServicePublicKey))
-                    throw new InvalidOperationException("the service did not announce a signed public key (Ping).");
-                var publicKey = SignedKeyAnnouncement.Parse(ping.SignedServicePublicKey)
-                    .VerifyAndGetPublicKey(verificationKey);
-                Console.WriteLine("service public key obtained from verified signed announcement.");
-                return publicKey;
+                return await ResolveFromSignedAnnouncement(verificationKey, requestHandler, cancel);
 
             default:
                 throw new UsageException($"unsupported key file extension '{Path.GetExtension(keyFile)}' (expected .xwing or .hybrid).");
         }
+    }
+
+    /// <summary>
+    /// Obtains the service's X-Wing public key from the Ping response's signed
+    /// announcement, verified against the given hybrid verification key.
+    /// </summary>
+    private static async Task<string> ResolveFromSignedAnnouncement(string verificationKey,
+        IRequestHandler requestHandler, CancellationToken cancel)
+    {
+        var ping = await new ManagementClient(requestHandler).Ping(new Ping.Request(), cancel);
+        if (string.IsNullOrEmpty(ping.SignedServicePublicKey))
+            throw new InvalidOperationException("the service did not announce a signed public key (Ping).");
+        var publicKey = SignedKeyAnnouncement.Parse(ping.SignedServicePublicKey)
+            .VerifyAndGetPublicKey(verificationKey);
+        Console.WriteLine("service public key obtained from verified signed announcement.");
+        return publicKey;
     }
 
     /// <summary>Accepts the raw key (exact size) or a base64 text file; returns the base64.</summary>
@@ -204,7 +225,7 @@ internal static class Program
     {
         public required string InputFile { get; init; }
         public required string OutputFile { get; init; }
-        public required string KeyFile { get; init; }
+        public string? KeyFile { get; init; }
         public required string SourceLanguage { get; init; }
         public required string TargetLanguage { get; init; }
         public bool Finalize { get; init; }
@@ -251,12 +272,13 @@ internal static class Program
                 }
             }
 
-            if (positional.Count != 3)
-                throw new UsageException($"expected 3 arguments (input, output, key file), got {positional.Count}.");
+            if (positional.Count is not (2 or 3))
+                throw new UsageException($"expected 2 or 3 arguments (input, output, [key file]), got {positional.Count}.");
             if (!File.Exists(positional[0]))
                 throw new UsageException($"input file '{positional[0]}' does not exist.");
-            if (!File.Exists(positional[2]))
-                throw new UsageException($"key file '{positional[2]}' does not exist.");
+            var keyFile = positional.Count == 3 ? positional[2] : null;
+            if (keyFile != null && !File.Exists(keyFile))
+                throw new UsageException($"key file '{keyFile}' does not exist.");
             if (!named.ContainsKey("src") || !named.ContainsKey("trg"))
                 throw new UsageException("--src and --trg are required.");
 
@@ -287,7 +309,7 @@ internal static class Program
             {
                 InputFile = positional[0],
                 OutputFile = positional[1],
-                KeyFile = positional[2],
+                KeyFile = keyFile,
                 SourceLanguage = named["src"],
                 TargetLanguage = named["trg"],
                 Finalize = finalize,
